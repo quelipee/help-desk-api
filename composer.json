@@ -1,0 +1,23 @@
+{
+  "name": "felipe/helpdesk",
+  "description": "Sistema de gerenciamento de chamados",
+  "type": "project",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "App\\": "app/"
+    }
+  },
+  "authors": [
+    {
+      "name": "felipefuks"
+    }
+  ],
+  "minimum-stability": "stable",
+  "require": {
+    "php": "^8.3"
+  },
+  "scripts": {
+    "du" : "@composer dump-autoload"
+  }
+}
