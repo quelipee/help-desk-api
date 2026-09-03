@@ -1,8 +1,11 @@
 <?php
 
+require_once __DIR__ . "/../vendor/autoload.php";
 
+use App\Models\User;
 
-require_once "../vendor/autoload.php";
+$user = new User('felipe', 'fe@gmail.com');
 
-$user = new \App\User();
-echo $user->sayHello();
+echo $user->getName();
+echo '<br>';
+echo $user->getEmail();
