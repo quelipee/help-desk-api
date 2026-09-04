@@ -2,18 +2,10 @@
 
 require_once __DIR__ . "/../vendor/autoload.php";
 
-use App\Models\User;
-use App\ValueObjects\Email;
+use App\Repositories\InMemoryUserRepository;
+use App\Services\UserService;
 
-$email = new Email('fe@gmail.com');
-$user = new User(1,'felipe', $email);
-
-$user->changeEmail(new Email('fe12@gmail.com'));
-$user->changeName('felipe Mateus');
-
-echo $user->getId();
-echo '<br>';
-echo $user->getName();
-echo '<br>';
-echo $user->getEmail();
-echo '<br>';
+$repository = new InMemoryUserRepository();
+$service = new UserService($repository);
+$user = $service->createUser(1,'felipe','fe@gmail.com');
+var_dump($service->findUser($user->getId()));
