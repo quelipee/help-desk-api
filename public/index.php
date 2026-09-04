@@ -2,10 +2,20 @@
 
 require_once __DIR__ . "/../vendor/autoload.php";
 
+use App\Application\DTOs\CreateUserInput;
+use App\Application\UseCases\CreateUser;
 use App\Repositories\InMemoryUserRepository;
-use App\Services\UserService;
 
 $repository = new InMemoryUserRepository();
-$service = new UserService($repository);
-$user = $service->createUser(1,'felipe','fe@gmail.com');
-var_dump($service->findUser($user->getId()));
+$createUser = new CreateUser($repository);
+
+$data = [
+    'id' => 1,
+    'name' => 'felipe',
+    'email' => 'fe@gmail.com'
+];
+
+$userDTO = CreateUserInput::fromArray($data);
+
+$user = $createUser->execute($userDTO);
+var_dump($user);
