@@ -15,7 +15,8 @@
   ],
   "minimum-stability": "stable",
   "require": {
-    "php": "^8.3"
+    "php": "^8.3",
+    "ext-pdo": "*"
   },
   "scripts": {
     "du" : "@composer dump-autoload"
