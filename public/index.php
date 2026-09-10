@@ -2,21 +2,31 @@
 
 require_once __DIR__ . "/../vendor/autoload.php";
 
-use App\Application\DTOs\CreateUserInput;
 use App\Application\UseCases\CreateUser;
+use App\Exceptions\UserAlreadyExistsException;
 use App\Infrastructure\Database\Connection;
 use App\Infrastructure\Repositories\PdoUserRepository;
+use App\Presentation\Controllers\UserController;
 
-$conn = new Connection();
-$repository = new PdoUserRepository($conn->getConn());
+$repository = new PdoUserRepository(Connection::getConn());
 $createUser = new CreateUser($repository);
+$userController = new UserController($createUser);
 
 $data = [
-    'id' => 1,
+    'id' => 911112212111,
     'name' => 'felipe',
     'email' => 'fe@gmail.com'
 ];
 
-$userDTO = CreateUserInput::fromArray($data);
-$user = $createUser->execute($userDTO);
-print_r($user);
+try {
+    $user = $userController->create($data);
+
+    header('Content-Type: application/json');
+    http_response_code(201);
+
+    echo json_encode(['data' => $user->toArray()]);
+} catch (UserAlreadyExistsException $e) {
+    header('Content-Type: application/json');
+    http_response_code(409);
+    echo json_encode(['message' => $e->getMessage()]);
+}

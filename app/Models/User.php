@@ -16,6 +16,15 @@ class User
         $this->validateName($name);
     }
 
+    public function toArray() : array
+    {
+        return [
+            'id' => $this->getId(),
+            'name' => $this->getName(),
+            'email' => $this->getEmail(),
+        ];
+    }
+
     public function getId() : int
     {
         return $this->id;
