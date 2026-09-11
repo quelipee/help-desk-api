@@ -7,26 +7,38 @@ use App\Exceptions\UserAlreadyExistsException;
 use App\Infrastructure\Database\Connection;
 use App\Infrastructure\Repositories\PdoUserRepository;
 use App\Presentation\Controllers\UserController;
+use App\Presentation\Http\ExceptionHandler;
+use App\Presentation\Http\Request;
+use App\Presentation\Http\Response;
+use App\Presentation\Http\Router;
 
-$repository = new PdoUserRepository(Connection::getConn());
-$createUser = new CreateUser($repository);
-$userController = new UserController($createUser);
+//$repository = new PdoUserRepository(Connection::getConn());
+//$createUser = new CreateUser($repository);
 
-$data = [
-    'id' => 911112212111,
-    'name' => 'felipe',
-    'email' => 'fe@gmail.com'
-];
+//$userController = new UserController($createUser);
+//$response = new Response();
+$request = new Request();
+$router = new Router();
 
-try {
-    $user = $userController->create($data);
+//$exceptionHandler = new ExceptionHandler($response);
+//set_exception_handler([$exceptionHandler, 'handle']);
 
-    header('Content-Type: application/json');
-    http_response_code(201);
+//if ($request->getMethod() !== 'POST') {
+//    echo $response->json(['message' => 'Method not allowed'], 405);
+//    exit;
+//}
 
-    echo json_encode(['data' => $user->toArray()]);
-} catch (UserAlreadyExistsException $e) {
-    header('Content-Type: application/json');
-    http_response_code(409);
-    echo json_encode(['message' => $e->getMessage()]);
-}
+$router->post('/users', function (Request $request) {
+    return $request->getMethod();
+});
+
+$router->get('/users', function (Request $request) {
+    return $request->getMethod();
+});
+
+$result = $router->dispatch($request);
+echo $result;
+
+//$data = $request->json();
+//$user = $userController->create($data);
+//echo $response->json($user->toArray(), 201);
