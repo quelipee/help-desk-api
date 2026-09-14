@@ -7,6 +7,7 @@ use RuntimeException;
 class Router
 {
     private array $routes = [];
+
     public function add(string $method, string $path, callable $handler): void
     {
         $this->routes[$method][$path] = $handler;
@@ -27,10 +28,26 @@ class Router
         $method = $request->getMethod();
         $uri = $request->getUri();
 
-        $handler = $this->routes[$method][$uri] ?? null;
-        if ($handler === null) {
-            throw new RuntimeException('Route not found');
+        foreach ($this->routes[$method] ?? [] as $route => $handler) {
+            $params = $this->matchRoute($route, $uri);
+            if ($params === null) {
+                continue;
+            }
+            return $handler($request, $params);
         }
-        return $handler($request);
+        throw new RuntimeException('No route matched');
+    }
+
+    public function matchRoute(string $route, string $uri): ?array
+    {
+        $pattern = str_replace('{id}', '(\d+)', $route);
+        $pattern = "#^" . $pattern . "$#";
+
+        if (!preg_match($pattern, $uri, $matches)) {
+            return null;
+        }
+        return [
+            'id' => $matches[1],
+        ];
     }
 }

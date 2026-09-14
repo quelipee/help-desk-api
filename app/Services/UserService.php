@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
+use App\Exceptions\UserNotFoundException;
 use App\Models\User;
 use App\Repositories\UserRepository;
-use App\ValueObjects\Email;
 
 class UserService
 {
@@ -16,6 +16,11 @@ class UserService
 
     public function findUser(int $id): ?User
     {
-        return $this->userRepository->findById($id);
+        $user = $this->userRepository->findById($id);
+
+        if ($user === null) {
+            throw new UserNotFoundException('User not found');
+        }
+        return $user;
     }
 }
