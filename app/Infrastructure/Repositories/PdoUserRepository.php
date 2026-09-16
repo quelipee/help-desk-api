@@ -48,7 +48,7 @@ class PdoUserRepository implements UserRepository
         ]);
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if (!$data) {
+        if ($data === false) {
             return null;
         }
         $email = new Email($data['email']);
@@ -58,5 +58,24 @@ class PdoUserRepository implements UserRepository
             name: $data['name'],
             email: $email,
         );
+    }
+
+    public function findAll(): array
+    {
+        $sql = "SELECT * FROM users";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute();
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $users = [];
+
+        foreach ($rows as $data) {
+            $users[] = new User(
+                id: $data['id'],
+                name: $data['name'],
+                email: new Email($data['email']),
+            );
+        }
+        return $users;
     }
 }

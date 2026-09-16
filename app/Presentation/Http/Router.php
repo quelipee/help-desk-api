@@ -40,6 +40,11 @@ class Router
 
     public function matchRoute(string $route, string $uri): ?array
     {
+        //verifica se a rota nao contem o {id}, e depois verifica se a rota for igual a uri ele volta um array vazio, se nao for volta null
+        if (!str_contains($route, '{id}')) {
+            return $route === $uri ? [] : null;
+        }
+
         $pattern = str_replace('{id}', '(\d+)', $route);
         $pattern = "#^" . $pattern . "$#";
 
