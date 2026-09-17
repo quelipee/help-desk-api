@@ -10,7 +10,7 @@ class Router
 
     public function add(string $method, string $path, callable $handler): void
     {
-        $this->routes[$method][$path] = $handler;
+        $this->routes[] = new Route($method, $path, $handler);
     }
 
     public function post(string $path, callable $handler): void
@@ -28,40 +28,16 @@ class Router
         $method = $request->getMethod();
         $uri = $request->getUri();
 
-        foreach ($this->routes[$method] ?? [] as $route => $handler) {
-            $params = $this->matchRoute($route, $uri);
-            if ($params === null) {
+        foreach ($this->routes as $route) {
+            if (!$route->matches($method, $uri)) {
                 continue;
             }
-            if ($method === 'GET') {
-                return $handler($params);
-            }
+            $params = $route->getParams($uri);
+            $handler = $route->getHandler();
+
             return $handler($request, $params);
         }
+
         throw new RuntimeException('No route matched');
-    }
-
-    private function matchRoute(string $route, string $uri): ?array
-    {
-        preg_match_all('/\{([^}]+)\}/', $route, $paramNames);
-
-        $pattern = preg_replace(
-            '/\{([^}]+)\}/',
-            '(\d+)',
-            $route
-        );
-
-        $pattern = "#^" . $pattern . "$#";
-
-        if (!preg_match($pattern, $uri, $matches)) {
-            return null;
-        }
-
-        $params = [];
-
-        foreach ($paramNames[1] as $index => $name) {
-            $params[$name] = $matches[$index + 1];
-        }
-        return $params;
     }
 }
