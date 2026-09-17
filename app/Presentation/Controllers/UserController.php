@@ -46,7 +46,7 @@ class UserController
         );
     }
 
-    public function show(Request $request, array $params): ResponseData
+    public function show(array $params): ResponseData
     {
         $user = $this->userService->findUser((int)$params['id']);
 

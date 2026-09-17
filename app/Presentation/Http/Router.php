@@ -33,26 +33,35 @@ class Router
             if ($params === null) {
                 continue;
             }
+            if ($method === 'GET') {
+                return $handler($params);
+            }
             return $handler($request, $params);
         }
         throw new RuntimeException('No route matched');
     }
 
-    public function matchRoute(string $route, string $uri): ?array
+    private function matchRoute(string $route, string $uri): ?array
     {
-        //verifica se a rota nao contem o {id}, e depois verifica se a rota for igual a uri ele volta um array vazio, se nao for volta null
-        if (!str_contains($route, '{id}')) {
-            return $route === $uri ? [] : null;
-        }
+        preg_match_all('/\{([^}]+)\}/', $route, $paramNames);
 
-        $pattern = str_replace('{id}', '(\d+)', $route);
+        $pattern = preg_replace(
+            '/\{([^}]+)\}/',
+            '(\d+)',
+            $route
+        );
+
         $pattern = "#^" . $pattern . "$#";
 
         if (!preg_match($pattern, $uri, $matches)) {
             return null;
         }
-        return [
-            'id' => $matches[1],
-        ];
+
+        $params = [];
+
+        foreach ($paramNames[1] as $index => $name) {
+            $params[$name] = $matches[$index + 1];
+        }
+        return $params;
     }
 }

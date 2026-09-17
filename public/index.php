@@ -28,6 +28,7 @@ set_exception_handler([$exceptionHandler, 'handle']);
 
 $router->post('/users', [$userController, 'create']);
 $router->get('/users/{id}', [$userController, 'show']);
+$router->get('/users/{id}/tickets/{ticketId}', [$userController, 'show']);
 
 $router->get('/users', [$userController, 'index']);
 
