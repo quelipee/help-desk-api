@@ -4,18 +4,17 @@ namespace App\Presentation\Controllers;
 
 use App\Application\DTOs\CreateUserInput;
 use App\Application\UseCases\CreateUser;
+use App\Application\UseCases\FindUser;
 use App\Application\UseCases\ListUsers;
-use App\Models\User;
 use App\Presentation\Http\Request;
 use App\Presentation\Http\ResponseData;
-use App\Services\UserService;
 
 class UserController
 {
     public function __construct(
-        private CreateUser  $createUser,
-        private ListUsers   $listUsers,
-        private UserService $userService
+        private CreateUser $createUser,
+        private ListUsers  $listUsers,
+        private FindUser   $findUser,
     )
     {
     }
@@ -48,7 +47,7 @@ class UserController
 
     public function show(Request $request, array $params): ResponseData
     {
-        $user = $this->userService->findUser((int)$params['id']);
+        $user = $this->findUser->execute((int)$params['id']);
 
         return new ResponseData(
             body: ['data' => $user->toArray()],

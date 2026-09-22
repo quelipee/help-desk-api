@@ -3,7 +3,7 @@
 namespace App\Infrastructure\Container;
 
 use Closure;
-use http\Exception\RuntimeException;
+use RuntimeException;
 use ReflectionClass;
 use ReflectionException;
 
@@ -54,7 +54,7 @@ class Container
     private function resolver(callable|string $class): object
     {
         if (!class_exists($class)) {
-            echo "Class {$class} does not exist";
+            throw new \RuntimeException("Class {$class} does not exist");
         }
 
         $reflection = new ReflectionClass($class);

@@ -2,7 +2,7 @@
 
 namespace App\Infrastructure\Config;
 
-use http\Exception\RuntimeException;
+use RuntimeException;
 
 class Config
 {
