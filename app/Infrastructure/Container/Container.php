@@ -12,6 +12,7 @@ class Container
     private array $bindings = [];
     private array $singletons = [];
     private array $instances = [];
+    private array $resolving = [];
 
     public function bind(string $abstract, callable|string $concrete): void
     {
@@ -29,23 +30,33 @@ class Container
      */
     public function get(string $abstract): object
     {
+        if (in_array($abstract, $this->resolving, true)) {
+            $cycle = implode(' -> ', [...$this->resolving, $abstract]);
+            throw new RuntimeException("Circular dependency detected: {$cycle}");
+        }
+
         if (isset($this->singletons[$abstract]) && isset($this->instances[$abstract])) {
             return $this->instances[$abstract];
         }
 
-        $concrete = $this->bindings[$abstract] ?? $abstract;
+        $this->resolving[] = $abstract;
+        try {
+            $concrete = $this->bindings[$abstract] ?? $abstract;
 
-        if ($concrete instanceof Closure) {
-            $instance = $concrete();
-        } else {
-            $instance = $this->resolver($concrete);
+            if ($concrete instanceof Closure) {
+                $instance = $concrete();
+            } else {
+                $instance = $this->resolver($concrete);
+            }
+
+            if (isset($this->singletons[$abstract])) {
+                $this->instances[$abstract] = $instance;
+            }
+
+            return $instance;
+        } finally {
+            array_pop($this->resolving);
         }
-
-        if (isset($this->singletons[$abstract])) {
-            $this->instances[$abstract] = $instance;
-        }
-
-        return $instance;
     }
 
     /**
@@ -53,11 +64,12 @@ class Container
      */
     private function resolver(callable|string $class): object
     {
-        if (!class_exists($class)) {
-            throw new \RuntimeException("Class {$class} does not exist");
+        $reflection = new ReflectionClass($class);
+
+        if ($reflection->isInterface()) {
+            throw new RuntimeException("Class {$class} must implement interface {$class}");
         }
 
-        $reflection = new ReflectionClass($class);
         $constructor = $reflection->getConstructor();
 
         if (is_null($constructor)) {
